@@ -8,6 +8,6 @@ call az configure --defaults group=%group%
 call az configure --defaults location=centralus
 
 ECHO Create Resource Group, App Plan, and App
-call az group create --name %group% --location %location%
+call az group create -n %group%
 call az appservice plan create -n %plan%
 call az webapp create -n %app% -p %plan%
