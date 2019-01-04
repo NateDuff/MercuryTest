@@ -1,0 +1,32 @@
+name: $(Build.DefinitionName)-$(date:yyyyMMdd)$(rev:.r)
+trigger:
+  branches:
+    include:
+    - 'master'
+  paths:
+    exclude:
+    - 'Scripts'
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+resources:
+- repo: self
+  clean: true
+
+steps:
+- task: MSBuild@1
+  inputs:
+    solution: '**/*.sln'
+    platform: 'any cpu'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files'
+  inputs:
+    SourceFolder: ./bin/Release/Publish
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
