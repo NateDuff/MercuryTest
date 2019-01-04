@@ -8,23 +8,25 @@ trigger:
     - 'Scripts'
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  vmImage: 'VS2017-Win2016'
 
-resources:
-- repo: self
-  clean: true
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
 
 steps:
-- task: MSBuild@1
-  inputs:
-    solution: '**/*.sln'
-    platform: 'any cpu'
+- task: NuGetToolInstaller@0
 
-- task: CopyFiles@2
-  displayName: 'Copy Files'
+- task: NuGetCommand@2
   inputs:
-    SourceFolder: ./bin/Release/Publish
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)"'
+    platform: 'any cpu'
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
